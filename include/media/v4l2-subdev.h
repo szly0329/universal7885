@@ -326,7 +326,11 @@ struct v4l2_mbus_frame_desc {
  *
  * @s_routing: see s_routing in audio_ops, except this version is for video
  *	devices.
- *
+ * 
+ * @s_dv_preset: set dv (Digital Video) preset in the sub device. Similar to s_std()
+ * 
+ * @query_dv_preset: query dv preset in the sub device. This is similar to querystd()
+ * 
  * @s_crystal_freq: sets the frequency of the crystal used to generate the
  *	clocks in Hz. An extra flags field allows device specific configuration
  *	regarding clock frequency dividers, etc. If not used, then set flags
@@ -409,6 +413,10 @@ struct v4l2_subdev_video_ops {
 				struct v4l2_subdev_frame_interval *interval);
 	int (*s_frame_interval)(struct v4l2_subdev *sd,
 				struct v4l2_subdev_frame_interval *interval);
+	int (*s_dv_preset)(struct v4l2_subdev *sd,
+			struct v4l2_dv_preset *preset);
+	int (*query_dv_preset)(struct v4l2_subdev *sd,
+			struct v4l2_dv_preset *preset);
 	int (*s_dv_timings)(struct v4l2_subdev *sd,
 			struct v4l2_dv_timings *timings);
 	int (*g_dv_timings)(struct v4l2_subdev *sd,
