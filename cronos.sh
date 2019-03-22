@@ -25,8 +25,8 @@ CR_DTB=$CR_DIR/boot.img-dtb
 CR_VERSION=V1.0
 CR_NAME=Quantum_Kernel
 CR_JOBS=5
-CR_ANDROID=p
-CR_PLATFORM=9.0.0
+CR_ANDROID=o
+CR_PLATFORM=8.0.0
 CR_ARCH=arm64
 CR_DATE=$(date +%Y%m%d)
 # Init build
@@ -35,9 +35,9 @@ export ANDROID_MAJOR_VERSION=$CR_ANDROID
 export PLATFORM_VERSION=$CR_PLATFORM
 export $CR_ARCH
 ##########################################
-# Device specific Variables [SM-A530F]
-CR_CONFG_A530F=m20lte_03_defconfig
-CR_VARIANT_A530F=M205F
+# Device specific Variables [SM-M205F]
+CR_CONFG_M205F=m20lte_03_defconfig
+CR_VARIANT_M205F=M205F
 ##########################################
 
 # Script functions
@@ -74,16 +74,16 @@ echo "----------------------------------------------"
 echo "$CR_NAME $CR_VERSION Build Script"
 echo "----------------------------------------------"
 PS3='Please select your option : '
-menuvar=("SM-A530F" "Exit")
+menuvar=("SM-M205F" "Exit")
 select menuvar in "${menuvar[@]}"
 do
     case $menuvar in
-        "SM-A530F")
+        "SM-M205F")
             clear
             CLEAN_SOURCE
-            echo "Starting $CR_VARIANT_A530F kernel build..."
-	    CR_VARIANT=$CR_VARIANT_A530F
-	    CR_CONFG=$CR_CONFG_A530F
+            echo "Starting $CR_VARIANT_M205F kernel build..."
+	    CR_VARIANT=$CR_VARIANT_M205F
+	    CR_CONFG=$CR_CONFG_M205F
 	    BUILD_ZIMAGE
             echo " "
             echo "----------------------------------------------"
