@@ -444,6 +444,10 @@ int inet_release(struct socket *sock)
 		if (sock_flag(sk, SOCK_LINGER) &&
 		    !(current->flags & PF_EXITING))
 			timeout = sk->sk_lingertime;
+#ifdef CONFIG_KNOX_NCM
+        /* START_OF_KNOX_NPA */
+        /* END_OF_KNOX_NPA */
+#endif
 		sock->sk = NULL;
 		sk->sk_prot->close(sk, timeout);
 	}
