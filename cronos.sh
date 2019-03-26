@@ -36,13 +36,13 @@ export PLATFORM_VERSION=$CR_PLATFORM
 export $CR_ARCH
 ##########################################
 # Device specific Variables [SM-A530F]
-CR_CONFG_A530F=exynos7885-jackpotlte_defconfig
+CR_CONFG_A530F=lineage_jackpotlte_defconfig
 CR_VARIANT_A530F=A530F
 # Device specific Variables [SM-A730F]
-CR_CONFG_A730F=exynos7885-jackpot2lte_defconfig
+CR_CONFG_A730F=lineage_jackpot2lte_defconfig
 CR_VARIANT_A730F=A730F
 # Device specific Variables [SM-A530W]
-CR_CONFG_A530W=exynos7885-jackpotltecan_defconfig
+CR_CONFG_A530W=lineage_jackpotltecan_defconfig
 CR_VARIANT_A530W=A530W
 ##########################################
 
