@@ -1558,6 +1558,11 @@ static struct proto tun_proto = {
 	.obj_size	= sizeof(struct tun_file),
 };
 
+static int tun_flags(struct tun_struct *tun)
+{
+	return tun->flags & (TUN_FEATURES | IFF_PERSIST | IFF_TUN | IFF_TAP);
+}
+
 static ssize_t tun_show_flags(struct device *dev, struct device_attribute *attr,
 			      char *buf)
 {
