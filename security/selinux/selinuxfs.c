@@ -128,18 +128,20 @@ static unsigned long sel_last_ino = SEL_INO_NEXT - 1;
 #define SEL_INO_MASK			0x00ffffff
 
 #define TMPBUFLEN	12
+#ifdef CONFIG_SECURITY_SELINUX_FAKE_ENFORCE
+static int user_selinux_enforcing = 0;
+#endif
 static ssize_t sel_read_enforce(struct file *filp, char __user *buf,
 				size_t count, loff_t *ppos)
 {
-    int display_status = selinux_enforcing;
 	char tmpbuf[TMPBUFLEN];
 	ssize_t length;
 
 #ifdef CONFIG_SECURITY_SELINUX_FAKE_ENFORCE
-    display_status = 1;
+	length = scnprintf(tmpbuf, TMPBUFLEN, "%d", user_selinux_enforcing);
+#else
+	length = scnprintf(tmpbuf, TMPBUFLEN, "%d", selinux_enforcing);
 #endif
-
-	length = scnprintf(tmpbuf, TMPBUFLEN, "%d", display_status);
 	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
 }
 
@@ -175,6 +177,7 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
 		goto out;
 
 // [ SEC_SELINUX_PORTING_COMMON
+#ifdef CONFIG_SECURITY_SEC_SELINUX
 #ifdef CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE
 	// If always enforce option is set, selinux is always enforcing
 	new_value = 1;
@@ -190,12 +193,12 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
 	avc_ss_reset(0);
 	selnl_notify_setenforce(new_value);
 	selinux_status_update_setenforce(new_value);
-#elif defined(CONFIG_SECURITY_SELINUX_ALWAYS_PERMISSIVE)
-	// If never enforce option is set, selinux is always permissive
+#elif defined(CONFIG_SECURITY_SELINUX_NEVER_ENFORCE)
+	// If never enforce option is set, selinux is never enforcing
 	new_value = 0;
 	length = task_has_security(current, SECURITY__SETENFORCE);
 	audit_log(current->audit_context, GFP_KERNEL, AUDIT_MAC_STATUS,
-                        "config_always_permissive - true; enforcing=%d old_enforcing=%d auid=%u ses=%u",
+                        "config_never_enforce - true; enforcing=%d old_enforcing=%d auid=%u ses=%u",
                         new_value, selinux_enforcing,
                         from_kuid(&init_user_ns, audit_get_loginuid(current)),
                         audit_get_sessionid(current));
@@ -206,6 +209,34 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
 	selinux_status_update_setenforce(new_value);
 #else
 	new_value = 0;
+#ifdef CONFIG_SECURITY_SELINUX_FAKE_ENFORCE
+	user_selinux_enforcing = new_value;
+	length = count;
+	goto out;
+#endif
+	if (new_value != selinux_enforcing) {
+		length = task_has_security(current, SECURITY__SETENFORCE);
+		if (length)
+			goto out;
+		audit_log(current->audit_context, GFP_KERNEL, AUDIT_MAC_STATUS,
+			"enforcing=%d old_enforcing=%d auid=%u ses=%u",
+			new_value, selinux_enforcing,
+			from_kuid(&init_user_ns, audit_get_loginuid(current)),
+			audit_get_sessionid(current));
+		selinux_enforcing = new_value;
+		if (selinux_enforcing)
+			avc_ss_reset(0);
+		selnl_notify_setenforce(selinux_enforcing);
+		selinux_status_update_setenforce(selinux_enforcing);
+	}
+#endif
+#else
+#ifdef CONFIG_SECURITY_SELINUX_FAKE_ENFORCE
+	user_selinux_enforcing = new_value;
+	length = count;
+	goto out;
+#endif
+>>>>>>> parent of 38e2eb5e501f... selinux: add default selinux status configs
 	if (new_value != selinux_enforcing) {
 		length = task_has_security(current, SECURITY__SETENFORCE);
 		if (length)
@@ -1889,8 +1920,10 @@ static int __init init_sel_fs(void)
 {
 	int err;
 // [ SEC_SELINUX_PORTING_COMMON
+#ifdef CONFIG_SECURITY_SEC_SELINUX
 #ifdef CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE
 	selinux_enabled = 1;
+#endif
 #endif
 // ] SEC_SELINUX_PORTING_COMMON
 	if (!selinux_enabled)
